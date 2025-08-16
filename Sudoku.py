@@ -11,12 +11,25 @@ class Sudoku:
     def print_board(self, board):
         global start
         if start:
-            print("\n\n\n\n\n\n\n\n\n")
+            print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
             start = False
-        print("\033[9A", end="")
+        print("\033[13A", end="")
+        print(" ----------------------")
 
-        for i in board:
-            print(i, flush=True)
+        for i in range(9):
+            print(end="|")
+            for j in range(9):
+                print(f"{board[i][j]} ", flush=True, end="")
+                if j % 3 == 2:
+                    print(end="| ")
+
+            print()
+
+            if i in (2, 5):
+                print(" ------|-------|-------")
+
+        print(" ----------------------")
+
         time.sleep(0.15)
 
     def is_valid_sudoku(self, board):
