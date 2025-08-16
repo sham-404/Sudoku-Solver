@@ -19,7 +19,8 @@ class Sudoku:
         for i in range(9):
             print(end="|")
             for j in range(9):
-                print(f"{board[i][j]} ", flush=True, end="")
+                val = board[i][j] if board[i][j] != 0 else "."
+                print(f"{val} ", end="")
                 if j % 3 == 2:
                     print(end="| ")
 
