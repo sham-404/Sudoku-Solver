@@ -1,6 +1,6 @@
 from collections import defaultdict
+from functools import lru_cache
 import time
-import os
 
 start = True
 
@@ -8,7 +8,7 @@ start = True
 class Sudoku:
     valid_values = {1, 2, 3, 4, 5, 6, 7, 8, 9}
 
-    def print_board(self, board):
+    def print_board(self, board, x=0.01):
         global start
         if start:
             print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
@@ -31,7 +31,7 @@ class Sudoku:
 
         print(" ----------------------")
 
-        time.sleep(0.15)
+        time.sleep(x)
 
     def is_valid_sudoku(self, board):
         self.row = defaultdict(set)
@@ -62,7 +62,7 @@ class Sudoku:
 
         while r < 9:
             while c < 9:
-                if test_board[r][c] != 0:
+                if board[r][c] != 0:
                     c += 1
                     continue
 
@@ -78,7 +78,7 @@ class Sudoku:
                     self.col[c].add(val)
                     self.box[box_no].add(val)
 
-                    self.print_board(board)
+                    self.print_board(board, x=0.1)
 
                     found = True
                     r = 0
@@ -97,20 +97,71 @@ class Sudoku:
 
         return board
 
+    def is_valid_element(self, r, c, val):
+        box_no = (r // 3) * 3 + (c // 3)
+        if val in (self.row[r] | self.col[c] | self.box[box_no]):
+            return False
+
+        return True
+
+    def find_empty(self, board):
+        for r in range(9):
+            for c in range(9):
+                if board[r][c] == 0:
+                    return r, c
+
+        return None
+
+    def solver(self, board):
+        self.naked_singles(board)
+
+        def backtracking():
+            empty = self.find_empty(board)
+
+            if empty is None:
+                return True
+
+            r, c = empty
+
+            for val in range(1, 10):
+                if self.is_valid_element(r, c, val):
+                    board[r][c] = val
+
+                    self.print_board(board)
+
+                    box_no = (r // 3) * 3 + (c // 3)
+                    self.row[r].add(val)
+                    self.col[c].add(val)
+                    self.box[box_no].add(val)
+
+                    if backtracking():
+                        return True
+
+                    board[r][c] = 0
+                    self.row[r].remove(val)
+                    self.col[c].remove(val)
+                    self.box[box_no].remove(val)
+
+            return False
+
+        return backtracking()
+
 
 s = Sudoku()
 test_board = [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 6],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9],
+    [0, 0, 0, 0, 0, 0, 0, 1, 2],
+    [0, 0, 0, 0, 0, 0, 0, 3, 0],
+    [0, 0, 1, 0, 9, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 4, 0, 0, 0],
+    [0, 0, 0, 5, 0, 0, 4, 0, 7],
+    [0, 8, 0, 0, 0, 0, 0, 0, 0],
+    [0, 7, 0, 0, 6, 0, 0, 0, 0],
+    [9, 0, 0, 0, 0, 0, 0, 0, 0],
+    [8, 0, 0, 0, 0, 0, 3, 0, 0],
 ]
 
 
 print(s.is_valid_sudoku(test_board))
-s.print_board(s.naked_singles(test_board))
+# s.print_board(s.naked_singles(test_board))
+s.solver(test_board)
+s.print_board(test_board)
