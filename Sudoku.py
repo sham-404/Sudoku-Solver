@@ -1,5 +1,4 @@
 from collections import defaultdict
-from functools import lru_cache
 import time
 
 start = True
@@ -113,6 +112,10 @@ class Sudoku:
         return None
 
     def solver(self, board):
+        if not self.is_valid_sudoku(board):
+            print("This board in not valid!\n")
+            return None
+
         self.naked_singles(board)
 
         def backtracking():
@@ -161,7 +164,13 @@ test_board = [
 ]
 
 
-print(s.is_valid_sudoku(test_board))
 # s.print_board(s.naked_singles(test_board))
 s.solver(test_board)
 s.print_board(test_board)
+
+board2 = [[0] * 9 for _ in range(9)]
+start = True
+s.print_board(board2)
+s.solver(board2)
+start = True
+s.print_board(board2)
