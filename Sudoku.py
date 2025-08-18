@@ -7,6 +7,11 @@ start = True
 class Sudoku:
     valid_values = {1, 2, 3, 4, 5, 6, 7, 8, 9}
 
+    def __init__(self) -> None:
+        self.row = defaultdict(set)
+        self.col = defaultdict(set)
+        self.box = defaultdict(set)
+
     def print_board(self, board, x=0.01):
         global start
         if start:
@@ -33,10 +38,6 @@ class Sudoku:
         time.sleep(x)
 
     def is_valid_sudoku(self, board):
-        self.row = defaultdict(set)
-        self.col = defaultdict(set)
-        self.box = defaultdict(set)
-
         for r in range(9):
             for c in range(9):
                 val = board[r][c]
@@ -151,6 +152,7 @@ class Sudoku:
 
 
 s = Sudoku()
+s1 = Sudoku()
 test_board = [
     [0, 0, 0, 0, 0, 0, 0, 1, 2],
     [0, 0, 0, 0, 0, 0, 0, 3, 0],
@@ -164,13 +166,9 @@ test_board = [
 ]
 
 
-# s.print_board(s.naked_singles(test_board))
 s.solver(test_board)
 s.print_board(test_board)
 
 board2 = [[0] * 9 for _ in range(9)]
 start = True
-s.print_board(board2)
-s.solver(board2)
-start = True
-s.print_board(board2)
+s1.solver(board2)
