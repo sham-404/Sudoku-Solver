@@ -1,6 +1,5 @@
 from collections import defaultdict
 import time
-import os
 
 start = True
 
@@ -18,7 +17,7 @@ class Sudoku:
         if start:
             print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
             start = False
-        os.system("clear")
+        print("\033[13A", end="")
         print(" ----------------------")
 
         for i in range(9):
@@ -113,7 +112,9 @@ class Sudoku:
 
         return None
 
-    def solver(self, board):
+    def solver(self, board, animation=False):
+        global start
+        start = True
         if not self.is_valid_sudoku(board):
             print("This board in not valid!\n")
             return None
@@ -132,7 +133,8 @@ class Sudoku:
                 if self.is_valid_element(r, c, val):
                     board[r][c] = val
 
-                    self.print_board(board)
+                    if animation:
+                        self.print_board(board)
 
                     box_no = (r // 3) * 3 + (c // 3)
                     self.row[r].add(val)
@@ -166,10 +168,11 @@ test_board = [
     [8, 0, 0, 0, 0, 0, 3, 0, 0],
 ]
 
-
-s.solver(test_board)
+# Solving test_board using animation
+s.solver(test_board, animation=True)
 
 board2 = [[0] * 9 for _ in range(9)]
 board2[5][6] = 7
-start = True
-s1.solver(board2)
+
+s1.solver(board2, animation=True)
+s1.print_board(board2)
