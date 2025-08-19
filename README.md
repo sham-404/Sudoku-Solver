@@ -14,6 +14,22 @@ This is a simple Sudoku solver written in Python.
 - Python 3.8 or later
 - No extra libraries required
 
+## Important note for windows users
+- To get the animation effect, you need to install `colorama` package using pip and add colorama.init() at the start of the program
+
+- To install:
+  ```bash
+  pip install colorama
+  ```
+
+- Use it like this:
+  ```python
+  import colorama
+  colorama.init()
+  ```
+
+- If you just want to solve the board you can simply call the solver function without animation arguement
+
 ---
 
 ## How to Run
