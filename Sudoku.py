@@ -1,5 +1,6 @@
 from collections import defaultdict
 import time
+import os
 
 start = True
 
@@ -17,7 +18,7 @@ class Sudoku:
         if start:
             print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
             start = False
-        print("\033[13A", end="")
+        os.system("clear")
         print(" ----------------------")
 
         for i in range(9):
@@ -167,8 +168,8 @@ test_board = [
 
 
 s.solver(test_board)
-s.print_board(test_board)
 
 board2 = [[0] * 9 for _ in range(9)]
+board2[5][6] = 7
 start = True
 s1.solver(board2)
