@@ -156,6 +156,8 @@ class Sudoku:
 
 s = Sudoku()
 s1 = Sudoku()
+
+# Change the board as your desired sudoku board
 test_board = [
     [0, 0, 0, 0, 0, 0, 0, 1, 2],
     [0, 0, 0, 0, 0, 0, 0, 3, 0],
@@ -169,10 +171,14 @@ test_board = [
 ]
 
 # Solving test_board using animation
+print("\nSolving board with animation:")
 s.solver(test_board, animation=True)
 
-board2 = [[0] * 9 for _ in range(9)]
-board2[5][6] = 7
 
-s1.solver(board2, animation=True)
+# Example board to demonstrate solving sudoku without animation
+board2 = [[0] * 9 for _ in range(9)]
+board2[0][0] = 9
+
+print("\nSolving board without animation")
+s1.solver(board2, animation=False)  # Or simply s1.solver(board2)
 s1.print_board(board2)
