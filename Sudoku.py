@@ -1,7 +1,19 @@
 from collections import defaultdict
 import time
 
-start = True
+""" 
+Uncomment this if you are a windows user.
+Before using, make sure to install colorama using
+pip install colorama
+"""
+
+# import colorama
+# colorama.init()
+
+start = False
+SPEED_FAC = (
+    2  # Increase the value to decrease the speed of the animation and vice versa
+)
 
 
 class Sudoku:
@@ -35,7 +47,7 @@ class Sudoku:
 
         print(" ----------------------")
 
-        time.sleep(x)
+        time.sleep(x * SPEED_FAC)
 
     def is_valid_sudoku(self, board):
         for r in range(9):
