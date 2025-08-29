@@ -1,5 +1,6 @@
 from collections import defaultdict
 import time
+import numpy as np
 
 """ 
 Uncomment this if you are a windows user.
@@ -182,6 +183,7 @@ test_board = [
     [8, 0, 0, 0, 0, 0, 3, 0, 0],
 ]
 
+test_board = np.array(test_board)
 # Solving test_board using animation
 print("\nSolving board with animation:")
 s.solver(test_board, animation=True)
@@ -190,6 +192,8 @@ s.solver(test_board, animation=True)
 # Example board to demonstrate solving sudoku without animation
 board2 = [[0] * 9 for _ in range(9)]
 board2[0][0] = 9
+
+board2 = np.array(board2)
 
 print("\nSolving board without animation")
 s1.solver(board2, animation=False)  # Or simply s1.solver(board2)
