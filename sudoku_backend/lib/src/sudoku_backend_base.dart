@@ -8,7 +8,7 @@ class Sudoku {
 	final Map<int, Set<int>> rowMap = {};
 	final Map<int, Set<int>> colMap = {};
 	final Map<int, Set<int>> boxMap = {};
-	final Set<String> emptySet = {};
+	final List<String> emptyList = [];
 
 	Sudoku() {
 		for (int i = 0; i < rowSize; i++) {
@@ -24,7 +24,7 @@ class Sudoku {
 		for (int i = 0; i < rowSize; i++) {
 			for (int j = 0; j < colSize; j++) {
 				if (board[i][j] == 0) {
-					emptySet.add("$i,$j");
+					emptyList.add("$i,$j");
 				}
 			}
 		}
@@ -36,7 +36,6 @@ class Sudoku {
 			for (int c = 0; c < colSize; c++) {
 				val = board[r][c];
 				if (val == 0) {
-					emptySet.add("$r,$c");
 					continue;
 				}
 				boxNo = (r ~/ 3) * 3 + (c ~/ 3);
@@ -52,6 +51,16 @@ class Sudoku {
 		}
 		return true;
 	}
+
+	bool isValidElement(int row, int col, int val) {
+		int boxNo = (row ~/ 3) * 3 + (col ~/ 3);
+
+		if (rowMap[row]?.contains(val) ?? false) return false;
+		if (colMap[col]?.contains(val) ?? false) return false;
+		if (boxMap[boxNo]?.contains(val) ?? false) return false;
+
+        return true;
+    }
 
 	void nakedSingles(List<List<int>> board, [bool animation = false]) {
 		int row = 0;
@@ -105,29 +114,93 @@ class Sudoku {
 			col = 0;
 		}
 	}
+
+	void solver(List<List<int>> board, [bool animation = false]) {
+		start = true;
+		if (!isValidSudoku(board)) {
+			print("This is not a valid sudoku!");
+			return;
+		}
+
+		//nakedSingles(board, animation);
+		findAllEmpty(board);
+		List<String> strVal;
+		int row, col, boxNo;
+		print(emptyList);
+
+		bool backtracking([int idx = 0]) {
+			if (idx == emptyList.length) {
+				return true;
+			}
+
+			strVal = emptyList[idx].split(",");
+
+			row = int.parse(strVal[0]);
+			col = int.parse(strVal[1]);
+			boxNo = (row ~/ 3) * 3 + (col ~/ 3);
+
+			for (int val = 1; val <= rowSize; val++) {
+				if (isValidElement(row, col, val)) {
+
+					board[row][col] = val;
+
+					print("$val, $row, $col");
+
+					if (animation) {
+						for (var i in board) {
+							print(i);
+						}
+						print('');
+					}
+
+					rowMap[row]!.add(val);
+					colMap[col]!.add(val);
+					boxMap[boxNo]!.add(val);
+
+					if (backtracking(idx + 1)) {
+						return true;
+					}
+
+					board[row][col] = 0;
+					print("$row, $col");
+
+					rowMap[row]!.remove(val);
+					colMap[col]!.remove(val);
+					boxMap[boxNo]!.remove(val);
+				}
+			}
+
+			return false;
+
+		}
+
+		backtracking();
+	}
 }
 
 void main() {
-	List<List<int>> testBoard = [
-	  [5, 3, 0, 0, 7, 0, 0, 0, 0],
-	  [6, 0, 0, 1, 9, 5, 0, 0, 0],
-	  [0, 9, 8, 0, 0, 0, 0, 6, 0],
-	  [8, 0, 0, 0, 6, 0, 0, 0, 3],
-	  [4, 0, 0, 8, 0, 3, 0, 0, 1],
-	  [7, 0, 0, 0, 2, 0, 0, 0, 6],
-	  [0, 6, 0, 0, 0, 0, 2, 8, 0],
-	  [0, 0, 0, 4, 1, 9, 0, 0, 5],
-	  [0, 0, 0, 0, 8, 0, 0, 7, 9],
+	List<List<int>> testBoard1 = [
+		[0, 0, 0, 0, 0, 0, 0, 1, 2],
+		[0, 0, 0, 0, 0, 0, 0, 3, 0],
+		[0, 0, 1, 0, 9, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 4, 0, 0, 0],
+		[0, 0, 0, 5, 0, 0, 4, 0, 7],
+		[0, 8, 0, 0, 0, 0, 0, 0, 0],
+		[0, 7, 0, 0, 6, 0, 0, 0, 0],
+		[9, 0, 0, 0, 0, 0, 0, 0, 0],
+		[8, 0, 0, 0, 0, 0, 3, 0, 0],
 	];
 
 
 	Sudoku s = Sudoku();
-	s.findAllEmpty(testBoard);
-	print(s.emptySet);
-	print(s.isValidSudoku(testBoard));
-	s.nakedSingles(testBoard);
-	for (var i in testBoard) {
+	//s.findAllEmpty(testBoard);
+	//print(s.emptyList);
+	//print(s.isValidSudoku(testBoard1));
+	print(s.emptyList);
+	s.solver(testBoard1, true);
+	for (var i in testBoard1) {
 		print(i);
 	}
+
 	
 }
