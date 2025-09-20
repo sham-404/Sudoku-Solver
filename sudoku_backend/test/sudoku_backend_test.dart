@@ -13,9 +13,14 @@ class Sudoku {
   final List<(int, int)> empty = [];
 
   Sudoku() {
+    resetMaps();
+  }
+
+  void resetMaps() {
     rowMap.clear();
     colMap.clear();
     boxMap.clear();
+    empty.clear();
     for (int i = 0; i < rowSize; i++) {
       rowMap[i] = <int>{};
       colMap[i] = <int>{};
@@ -34,6 +39,7 @@ class Sudoku {
   }
 
   bool isValidSudoku(List<List<int>> board) {
+    resetMaps();
     for (int row = 0; row < rowSize; row++) {
       for (int col = 0; col < colSize; col++) {
         final int val = board[row][col];
@@ -93,13 +99,16 @@ class Sudoku {
 }
 
 void main() {
-  final board = [
+  final List<List<int>> board = [
     for (int i = 0; i < 9; i++) [for (int i = 0; i < 9; i++) 0],
   ];
 
-  final solver = Sudoku();
-  solver.solver(board);
+  final Sudoku solver = Sudoku();
+  print(solver.isValidSudoku(board));
   print(solver.empty);
+  solver.solver(board);
+  solver.solver(board);
+  
 
   for (final row in board) {
     print(row);
