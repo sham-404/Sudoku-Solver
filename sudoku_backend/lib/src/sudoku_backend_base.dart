@@ -1,7 +1,8 @@
 import 'dart:io';
+import 'dart:async';
 
 bool start = false;
-double speedFac = 2;
+int speedFac = 1;
 final int rowSize = 9;
 final int colSize = 9;
 
@@ -28,7 +29,12 @@ class Sudoku {
     }
   }
 
-  void printBoard(List<List<int>> board, [animation = false]) {
+  Future<void> printBoard(List<List<int>> board, [int x = 10]) async {
+    if (start) {
+      print("\n\n\n\n\n\n\n\n\n\n\n\n\n");
+      start = false;
+    }
+    stdout.write("\x1B[13A");
     print(" ----------------------");
 
     for (int row = 0; row < rowSize; row++) {
@@ -48,6 +54,8 @@ class Sudoku {
     }
 
     print(" ----------------------");
+
+    await Future.delayed(Duration(milliseconds: x * speedFac));
   }
 
   bool isValidElement(int row, int col, int val) {
@@ -92,7 +100,7 @@ class Sudoku {
     return true;
   }
 
-  void nakedSingles(List<List<int>> board, [bool animation = false]) {
+  Future<void> nakedSingles(List<List<int>> board, [bool animation = false]) async {
     int row = 0;
     int col = 0;
     int boxNo;
@@ -123,7 +131,7 @@ class Sudoku {
           boxMap[boxNo]!.add(val);
 
           if (animation) {
-            printBoard(board);
+            await printBoard(board, 30);
           }
 
           found = true;
@@ -145,17 +153,18 @@ class Sudoku {
     }
   }
 
-  void solver(List<List<int>> board) {
+  Future<void> solver(List<List<int>> board, [bool animation = false]) async {
+    start = true;
+
     if (!isValidSudoku(board)) {
       print("Not a valid Sudoku board");
       return;
     }
 
-    nakedSingles(board);
+    nakedSingles(board, animation);
     findAllEmpty(board);
-    print("It is a valid Sudoku!\n");
 
-    bool backtrack([int idx = 0]) {
+    Future<bool> backtrack([int idx = 0]) async {
       if (idx == empty.length) return true;
 
       final (row, col) = empty[idx];
@@ -168,7 +177,11 @@ class Sudoku {
           colMap[col]!.add(val);
           boxMap[boxNo]!.add(val);
 
-          if (backtrack(idx + 1)) return true;
+          if (animation) {
+            await printBoard(board);
+          }
+
+          if (await backtrack(idx + 1)) return true;
 
           board[row][col] = 0;
           rowMap[row]!.remove(val);
@@ -179,7 +192,7 @@ class Sudoku {
       return false;
     }
 
-    backtrack();
+    await backtrack();
   }
 }
 
@@ -191,9 +204,6 @@ void main() {
   board[0][0] = 2;
 
   final Sudoku solver = Sudoku();
-  print(solver.isValidSudoku(board));
-  print(solver.empty);
-  solver.solver(board);
-
+  solver.solver(board, true);
   solver.printBoard(board);
 }
