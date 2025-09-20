@@ -1,206 +1,180 @@
 bool start = false;
 double speedFac = 2;
-int rowSize = 9;
-int colSize = 9;
+final int rowSize = 9;
+final int colSize = 9;
 
 class Sudoku {
-	static Set<int> validValues = {for (int i = 1; i <= rowSize; i++) i};
-	final Map<int, Set<int>> rowMap = {};
-	final Map<int, Set<int>> colMap = {};
-	final Map<int, Set<int>> boxMap = {};
-	final List<String> emptyList = [];
+  static Set<int> validValues = {for (int i = 1; i <= rowSize; i++) i};
+  final Map<int, Set<int>> rowMap = {};
+  final Map<int, Set<int>> colMap = {};
+  final Map<int, Set<int>> boxMap = {};
+  final List<(int, int)> empty = [];
 
-	Sudoku() {
-		for (int i = 0; i < rowSize; i++) {
-			rowMap[i] = <int>{};
-			colMap[i] = <int>{};
-			boxMap[i] = <int>{};
-		}
-	}
+  Sudoku() {
+    resetMaps();
+  }
 
-	void printBoard(List<List<int>> board, [double x = 0.01]) {}
+  void resetMaps() {
+    rowMap.clear();
+    colMap.clear();
+    boxMap.clear();
+    empty.clear();
+    for (int i = 0; i < rowSize; i++) {
+      rowMap[i] = <int>{};
+      colMap[i] = <int>{};
+      boxMap[i] = <int>{};
+    }
+  }
 
-	void findAllEmpty(List<List<int>> board) {
-		for (int i = 0; i < rowSize; i++) {
-			for (int j = 0; j < colSize; j++) {
-				if (board[i][j] == 0) {
-					emptyList.add("$i,$j");
-				}
-			}
-		}
-	}
+  void printBoard(List<List<int>> board, [animation=false]) {}
 
-	bool isValidSudoku(List<List<int>> board) {
-		int val, boxNo;
-		for (int r = 0; r < rowSize; r++) {
-			for (int c = 0; c < colSize; c++) {
-				val = board[r][c];
-				if (val == 0) {
-					continue;
-				}
-				boxNo = (r ~/ 3) * 3 + (c ~/ 3);
+  bool isValidElement(int row, int col, int val) {
+    int boxNo = (row ~/ 3) * 3 + (col ~/ 3);
 
-				if ({...?rowMap[r], ...?colMap[c], ...?boxMap[boxNo]}.contains(val)) {
-					return false;
-				}
+    if (rowMap[row]?.contains(val) ?? false) return false;
+    if (colMap[col]?.contains(val) ?? false) return false;
+    if (boxMap[boxNo]?.contains(val) ?? false) return false;
 
-				rowMap[r]!.add(val);
-				colMap[c]!.add(val);
-				boxMap[boxNo]!.add(val);
-			}
-		}
-		return true;
-	}
+    return true;
+  }
 
-	bool isValidElement(int row, int col, int val) {
-		int boxNo = (row ~/ 3) * 3 + (col ~/ 3);
+  void findAllEmpty(List<List<int>> board) {
+    empty.clear();
+    for (int i = 0; i < rowSize; i++) {
+      for (int j = 0; j < colSize; j++) {
+        if (board[i][j] == 0) {
+          empty.add((i, j));
+        }
+      }
+    }
+  }
 
-		if (rowMap[row]?.contains(val) ?? false) return false;
-		if (colMap[col]?.contains(val) ?? false) return false;
-		if (boxMap[boxNo]?.contains(val) ?? false) return false;
+  bool isValidSudoku(List<List<int>> board) {
+    resetMaps();
+    for (int row = 0; row < rowSize; row++) {
+      for (int col = 0; col < colSize; col++) {
+        final int val = board[row][col];
 
-        return true;
+        if (val == 0) continue;
+
+        if (!isValidElement(row, col, val)) {
+          return false;
+        }
+
+        final boxNo = (row ~/ 3) * 3 + (col ~/ 3);
+        rowMap[row]!.add(val);
+        colMap[col]!.add(val);
+        boxMap[boxNo]!.add(val);
+      }
+    }
+    return true;
+  }
+
+  void nakedSingles(List<List<int>> board, [bool animation = false]) {
+    int row = 0;
+    int col = 0;
+    int boxNo;
+    int val;
+    Set<int> possibility;
+    bool found = false;
+
+    while (row < rowSize) {
+      while (col < colSize) {
+        if (board[row][col] != 0) {
+          col++;
+          continue;
+        }
+
+        boxNo = (row ~/ 3) * 3 + (col ~/ 3);
+        possibility = validValues.difference(
+          (rowMap[row] ?? {})
+              .union(colMap[col] ?? {})
+              .union(boxMap[boxNo] ?? {}),
+        );
+
+        if (possibility.length == 1) {
+          val = possibility.single;
+          board[row][col] = val;
+
+          rowMap[row]!.add(val);
+          colMap[col]!.add(val);
+          boxMap[boxNo]!.add(val);
+
+          if (animation) {
+            printBoard(board);
+          }
+
+          found = true;
+          row = 0;
+          col = 0;
+          break;
+        }
+
+        col++;
+      }
+
+      if (found) {
+        found = false;
+        continue;
+      }
+
+      row++;
+      col = 0;
+    }
+  }
+
+
+  void solver(List<List<int>> board) {
+    if (!isValidSudoku(board)) {
+      print("Not a valid Sudoku board");
+      return;
     }
 
-	void nakedSingles(List<List<int>> board, [bool animation = false]) {
-		int row = 0;
-		int col = 0;
-		int boxNo;
-		int val;
-		Set<int> possibility;
-		bool found = false;
+    nakedSingles(board);
+    findAllEmpty(board);
+    print("It is a valid Sudoku!\n");
 
-		while (row < rowSize) {
-			while (col < colSize) {
-				if (board[row][col] != 0) {
-					col++;
-					continue;
-				}
+    bool backtrack([int idx = 0]) {
+      if (idx == empty.length) return true;
 
-				boxNo = (row ~/ 3) * 3 + (col ~/ 3);
-				possibility = validValues.difference(
-					(rowMap[row] ?? {})
-							.union(colMap[col] ?? {})
-							.union(boxMap[boxNo] ?? {}),
-				);
+      final (row, col) = empty[idx];
+      final int boxNo = (row ~/ 3) * 3 + (col ~/ 3);
 
-				if (possibility.length == 1) {
-					val = possibility.single;
-					board[row][col] = val;
+      for (var val = 1; val <= 9; val++) {
+        if (isValidElement(row, col, val)) {
+          board[row][col] = val;
+          rowMap[row]!.add(val);
+          colMap[col]!.add(val);
+          boxMap[boxNo]!.add(val);
 
-					rowMap[row]!.add(val);
-					colMap[col]!.add(val);
-					boxMap[boxNo]!.add(val);
+          if (backtrack(idx + 1)) return true;
 
-					if (animation) {
-						printBoard(board);
-					}
+          board[row][col] = 0;
+          rowMap[row]!.remove(val);
+          colMap[col]!.remove(val);
+          boxMap[boxNo]!.remove(val);
+        }
+      }
+      return false;
+    }
 
-					found = true;
-					row = 0;
-					col = 0;
-					break;
-				}
-
-				col++;
-			}
-
-			if (found) {
-				found = false;
-				continue;
-			}
-
-			row++;
-			col = 0;
-		}
-	}
-
-	void solver(List<List<int>> board, [bool animation = false]) {
-		start = true;
-		if (!isValidSudoku(board)) {
-			print("This is not a valid sudoku!");
-			return;
-		}
-
-		//nakedSingles(board, animation);
-		findAllEmpty(board);
-		List<String> strVal;
-		int row, col, boxNo;
-		print(emptyList);
-
-		bool backtracking([int idx = 0]) {
-			if (idx == emptyList.length) {
-				return true;
-			}
-
-			strVal = emptyList[idx].split(",");
-
-			row = int.parse(strVal[0]);
-			col = int.parse(strVal[1]);
-			boxNo = (row ~/ 3) * 3 + (col ~/ 3);
-
-			for (int val = 1; val <= rowSize; val++) {
-				if (isValidElement(row, col, val)) {
-
-					board[row][col] = val;
-
-					print("$val, $row, $col");
-
-					if (animation) {
-						for (var i in board) {
-							print(i);
-						}
-						print('');
-					}
-
-					rowMap[row]!.add(val);
-					colMap[col]!.add(val);
-					boxMap[boxNo]!.add(val);
-
-					if (backtracking(idx + 1)) {
-						return true;
-					}
-
-					board[row][col] = 0;
-					print("$row, $col");
-
-					rowMap[row]!.remove(val);
-					colMap[col]!.remove(val);
-					boxMap[boxNo]!.remove(val);
-				}
-			}
-
-			return false;
-
-		}
-
-		backtracking();
-	}
+    backtrack();
+  }
 }
 
 void main() {
-	List<List<int>> testBoard1 = [
-		[0, 0, 0, 0, 0, 0, 0, 1, 2],
-		[0, 0, 0, 0, 0, 0, 0, 3, 0],
-		[0, 0, 1, 0, 9, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 4, 0, 0, 0],
-		[0, 0, 0, 5, 0, 0, 4, 0, 7],
-		[0, 8, 0, 0, 0, 0, 0, 0, 0],
-		[0, 7, 0, 0, 6, 0, 0, 0, 0],
-		[9, 0, 0, 0, 0, 0, 0, 0, 0],
-		[8, 0, 0, 0, 0, 0, 3, 0, 0],
-	];
+  final List<List<int>> board = [
+    for (int i = 0; i < 9; i++) [for (int i = 0; i < 9; i++) 0],
+  ];
 
+  board[0][0] = 2;
 
-	Sudoku s = Sudoku();
-	//s.findAllEmpty(testBoard);
-	//print(s.emptyList);
-	//print(s.isValidSudoku(testBoard1));
-	print(s.emptyList);
-	s.solver(testBoard1, true);
-	for (var i in testBoard1) {
-		print(i);
-	}
+  final Sudoku solver = Sudoku();
+  print(solver.isValidSudoku(board));
+  print(solver.empty);
+  solver.solver(board);
 
-	
+  for (final row in board) {
+    print(row);
+  }
 }
