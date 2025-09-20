@@ -1,3 +1,5 @@
+import 'dart:io';
+
 bool start = false;
 double speedFac = 2;
 final int rowSize = 9;
@@ -26,7 +28,27 @@ class Sudoku {
     }
   }
 
-  void printBoard(List<List<int>> board, [animation=false]) {}
+  void printBoard(List<List<int>> board, [animation = false]) {
+    print(" ----------------------");
+
+    for (int row = 0; row < rowSize; row++) {
+      stdout.write("|");
+
+      for (int col = 0; col < colSize; col++) {
+        var val = board[row][col] == 0 ? '.' : board[row][col];
+        stdout.write("$val ");
+        if (col % 3 == 2) stdout.write("| ");
+      }
+
+      print("");
+
+      if ([2, 5].contains(row)) {
+        print(" ------|-------|-------");
+      }
+    }
+
+    print(" ----------------------");
+  }
 
   bool isValidElement(int row, int col, int val) {
     int boxNo = (row ~/ 3) * 3 + (col ~/ 3);
@@ -123,7 +145,6 @@ class Sudoku {
     }
   }
 
-
   void solver(List<List<int>> board) {
     if (!isValidSudoku(board)) {
       print("Not a valid Sudoku board");
@@ -174,7 +195,5 @@ void main() {
   print(solver.empty);
   solver.solver(board);
 
-  for (final row in board) {
-    print(row);
-  }
+  solver.printBoard(board);
 }
