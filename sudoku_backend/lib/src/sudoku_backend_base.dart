@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:async';
 
 bool start = false;
-int speedFac = 1;
+int speedFac = 2;
 final int rowSize = 9;
 final int colSize = 9;
 
@@ -153,7 +153,7 @@ class Sudoku {
     }
   }
 
-  Future<void> solver(List<List<int>> board, [bool animation = false]) async {
+  void solver(List<List<int>> board, [bool animation = false]) {
     start = true;
 
     if (!isValidSudoku(board)) {
@@ -192,7 +192,7 @@ class Sudoku {
       return false;
     }
 
-    await backtrack();
+    backtrack();
   }
 }
 
