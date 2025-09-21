@@ -16,10 +16,12 @@ start = False
 SPEED_FAC = (
     2  # Increase the value to decrease the speed of the animation and vice versa
 )
+ROW_SIZE = 9
+COL_SIZE = 9
 
 
 class Sudoku:
-    valid_values = {1, 2, 3, 4, 5, 6, 7, 8, 9}
+    valid_values = {i for i in range(1, ROW_SIZE + 1)}
 
     def __init__(self) -> None:
         self.row = defaultdict(set)
@@ -34,9 +36,9 @@ class Sudoku:
         print("\033[13A", end="")
         print(" ----------------------")
 
-        for i in range(9):
+        for i in range(ROW_SIZE):
             print(end="|")
-            for j in range(9):
+            for j in range(COL_SIZE):
                 val = board[i][j] if board[i][j] != 0 else "."
                 print(f"{val} ", end="")
                 if j % 3 == 2:
@@ -52,8 +54,8 @@ class Sudoku:
         time.sleep(x * SPEED_FAC)
 
     def is_valid_sudoku(self, board):
-        for r in range(9):
-            for c in range(9):
+        for r in range(ROW_SIZE):
+            for c in range(COL_SIZE):
                 val = board[r][c]
 
                 if val == 0:
@@ -74,8 +76,8 @@ class Sudoku:
         c = 0
         found = False
 
-        while r < 9:
-            while c < 9:
+        while r < ROW_SIZE:
+            while c < COL_SIZE:
                 if board[r][c] != 0:
                     c += 1
                     continue
@@ -119,8 +121,8 @@ class Sudoku:
         return True
 
     def find_empty(self, board):
-        for r in range(9):
-            for c in range(9):
+        for r in range(ROW_SIZE):
+            for c in range(COL_SIZE):
                 if board[r][c] == 0:
                     return r, c
 
@@ -145,7 +147,7 @@ class Sudoku:
 
             r, c = empty
 
-            for val in range(1, 10):
+            for val in range(1, ROW_SIZE + 1):
                 if self.is_valid_element(r, c, val):
                     board[r][c] = val
 
@@ -189,8 +191,8 @@ test_board = [
 test_board = np.array(test_board)
 # Solving test_board using animation
 print("\nSolving board with animation:")
-s.solver(test_board, animation=False)
-
+s.solver(test_board, animation=True)
+s.print_board(test_board)
 
 # Example board to demonstrate solving sudoku without animation
 board2 = [[0] * 9 for _ in range(9)]
@@ -199,5 +201,5 @@ board2[0][0] = 2
 board2 = np.array(board2)
 
 print("\nSolving board without animation")
-s1.solver(board2, animation=True)  # Or simply s1.solver(board2)
+s1.solver(board2, animation=False)  # Or simply s1.solver(board2)
 s1.print_board(board2)
